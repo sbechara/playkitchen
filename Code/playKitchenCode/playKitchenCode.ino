@@ -5,17 +5,27 @@
 
 //Define our clock and data lines
 #define DATA_PIN 11
-#define CLOCK_PIN 13
+#define CLOCK_PIN 12
 
 #define WAIT 20
 #define MAXBRIGHTNESS 70
 #define MINBRIGHTNESS 10
 
+// HOW TO HOOKUP BUTTON
+const int buttonPin = 9; // Connected to NO1 pin: Normally Open Pin
+const int buttonLEDPin = 10; // Connected to the + LED Pin
+// Connect both C1: Common Pin and - LED Pin on button to GND
+// Sparkfun says you don't need a resistor, already included.
+
+int buttonState = LOW;
+
 //Create the LED array
 CRGB leds[NUM_LEDS];
 
 void setup() {
-
+  // put your setup code here, to run once:
+  pinMode(buttonPin , INPUT_PULLUP);
+  pinMode(buttonLEDPin, OUTPUT);
   //Tell FastLED what we're using. Note "BGR" where you might normally find "RGB".
   //This is just to rearrange the order to make all the colors work right.
   FastLED.addLeds<APA102, DATA_PIN, CLOCK_PIN, BGR>(leds, NUM_LEDS);
@@ -25,11 +35,20 @@ void setup() {
 }
 
 void loop() {
-  glow(MINBRIGHTNESS, MAXBRIGHTNESS);
-  delay(1000);
-  move(NUM_LEDS, 50);
-  delay(1000);
+  buttonState = digitalRead(buttonPin);
 
+  if (buttonState == LOW) {
+    digitalWrite(buttonLEDPin, HIGH);
+    glow(MINBRIGHTNESS, MAXBRIGHTNESS);
+  }
+  else {
+    digitalWrite(buttonLEDPin, LOW);
+    // turn all LEDs off
+    for (int led = 0; led < NUM_LEDS; led++) {
+      leds[led] = CRGB::Black;
+    }
+    FastLED.show();
+  }
 
 }
 

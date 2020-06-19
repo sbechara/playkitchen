@@ -1,11 +1,11 @@
 #include "FastLED.h"
 
 //Number of LEDs
-#define NUM_LEDS 12
+#define NUM_LEDS 16
 
 //Define our clock and data lines
-#define DATA_PIN 11
-#define CLOCK_PIN 13
+#define DATA_PIN 7
+#define CLOCK_PIN 6
 
 #define WAIT 20
 #define MAXBRIGHTNESS 70
