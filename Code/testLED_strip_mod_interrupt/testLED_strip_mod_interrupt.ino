@@ -1,9 +1,10 @@
 #include "FastLED.h"
 
+// ***** LUMENATI STRIP VARIABLES *******
 //Number of LEDs
 #define NUM_LEDS 16
 
-//Define our clock and data lines
+//Define our clock and data lines for the lumenati strip
 #define DATA_PIN 7
 #define CLOCK_PIN 6
 
@@ -14,9 +15,14 @@
 //Create the LED array
 CRGB leds[NUM_LEDS];
 
+// ******** Cycle Variables *********
 const byte interruptPin = 2;
 volatile byte state = LOW;
 int modButtonCycle = 0;
+const int maxCycles = 4;
+
+// Interrupt debounce variable
+static unsigned long last_interrupt_time = 0;
 
 void setup() {
 
@@ -29,28 +35,46 @@ void setup() {
 
   pinMode(interruptPin, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(interruptPin), cycle, RISING);
-
-  // For testign
-  Serial.begin(9600);
 }
 
 void loop() {
-
-  
-  
   if (modButtonCycle == 0)
   {
     glowRed(MINBRIGHTNESS, MAXBRIGHTNESS);
   }
   else if (modButtonCycle == 1) {
-    move(NUM_LEDS, 50);
+    glowGreen(MINBRIGHTNESS, MAXBRIGHTNESS);
+  }
+  else if (modButtonCycle == 2) {
+    glowPink(MINBRIGHTNESS, MAXBRIGHTNESS);
   }
   else {
     glowBlue(MINBRIGHTNESS, MAXBRIGHTNESS);
   }
-
-
+  delay(WAIT);
 }
+
+// ******** SUB FUNCTIONS ***************
+
+// Interrupt function to change the "cycle"
+void cycle() {
+  unsigned long interrupt_time = millis();
+
+  if (interrupt_time - last_interrupt_time > 500)
+  {
+    Serial.println(modButtonCycle);
+    if (modButtonCycle < maxCycles - 1) {
+      modButtonCycle++;
+    }
+    else {
+      modButtonCycle = 0;
+
+    }
+  }
+  last_interrupt_time = interrupt_time;
+}
+
+// ***** COLOR GLOWING FUNCTIONS BELOW ********
 
 // glow red function
 void glowRed(int minBrightness, int maxBrightness) {
@@ -78,14 +102,29 @@ void glowRed(int minBrightness, int maxBrightness) {
   }
 }
 
-// move function
-void move(int numLEDS, int brightness) {
-  FastLED.setBrightness(brightness);
-  for (int dot = 0; dot < numLEDS; dot++) {
-    leds[dot] = CRGB::Maroon;
+// glow pink function
+void glowPink(int minBrightness, int maxBrightness) {
+  // turn all LEDs on
+  //Set global brightness
+  FastLED.setBrightness(0);
+
+  for (int led = 0; led < NUM_LEDS; led++) {
+    leds[led] = CRGB::Pink;
+  }
+  FastLED.show();
+
+  // glowing UP
+  for (int t = minBrightness; t < maxBrightness; t++) {
+    FastLED.setBrightness(t);
     FastLED.show();
-    leds[dot] = CRGB::Black;
-    delay(100);
+    delay(WAIT);
+  }
+
+  // glowing DOWN
+  for (int t = maxBrightness; t > minBrightness; t--) {
+    FastLED.setBrightness(t);
+    FastLED.show();
+    delay(WAIT);
   }
 }
 
@@ -115,13 +154,28 @@ void glowBlue(int minBrightness, int maxBrightness) {
   }
 }
 
-void cycle() {
-  Serial.println(modButtonCycle);
-      if (modButtonCycle < 2) {
-      modButtonCycle++;
-    }
-    else {
-      modButtonCycle = 0;
-      
-    }
+// glow green function
+void glowGreen(int minBrightness, int maxBrightness) {
+  // turn all LEDs on
+  //Set global brightness
+  FastLED.setBrightness(0);
+
+  for (int led = 0; led < NUM_LEDS; led++) {
+    leds[led] = CRGB::Green;
+  }
+  FastLED.show();
+
+  // glowing UP
+  for (int t = minBrightness; t < maxBrightness; t++) {
+    FastLED.setBrightness(t);
+    FastLED.show();
+    delay(WAIT);
+  }
+
+  // glowing DOWN
+  for (int t = maxBrightness; t > minBrightness; t--) {
+    FastLED.setBrightness(t);
+    FastLED.show();
+    delay(WAIT);
+  }
 }
