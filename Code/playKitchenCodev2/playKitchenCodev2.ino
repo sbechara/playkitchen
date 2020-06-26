@@ -1,3 +1,5 @@
+// So the code is a little janky but it works. If you want to change the colors that should be pretty easy to do.
+
 #include "FastLED.h"
 
 // ***** LUMENATI VARIABLES *******
@@ -129,28 +131,6 @@ void loop() {
 
 // ******** SUB FUNCTIONS ***************
 
-// Interrupt function to change the "cycle" OVEN
-void cycleOven() {
-  unsigned long interrupt_time = millis();
-  Serial.println("Oven Button Press Registered");
-  if (interrupt_time - last_interrupt_time > 500)
-  {
-    Serial.println(modButtonCycleOven);
-    if (modButtonCycleOven < maxCycles - 1) {
-      modButtonCycleOven++;
-    }
-    else {
-      modButtonCycleOven = 0;
-
-    }
-  }
-  else {
-    Serial.println("Multiple presses");
-  }
-  last_interrupt_time = interrupt_time;
-  Serial.println(modButtonCycleOven);
-}
-
 // Interrupt function to change the "cycle" STOVE
 void cycleStove() {
   unsigned long interrupt_time = millis();
@@ -163,7 +143,20 @@ void cycleStove() {
     }
     else {
       modButtonCycleStove = 0;
-
+    }
+    // so it instantly changes color when pressed. Seems janky but I kinda like the flash of color even if "main" button is not depressed.
+    if (modButtonCycleStove == 0)
+    {
+      glowRed(NUM_LEDS_STOVE, ledsStove);
+    }
+    else if (modButtonCycleStove == 1) {
+      glowGreen(NUM_LEDS_STOVE, ledsStove);
+    }
+    else if (modButtonCycleStove == 2) {
+      glowPink(NUM_LEDS_STOVE, ledsStove);
+    }
+    else {
+      glowBlue(NUM_LEDS_STOVE, ledsStove);
     }
   }
   else {
@@ -172,6 +165,42 @@ void cycleStove() {
   last_interrupt_time = interrupt_time;
   Serial.println(modButtonCycleStove); //debugging
 }
+
+// Interrupt function to change the "cycle" OVEN
+void cycleOven() {
+  unsigned long interrupt_time = millis();
+  Serial.println("Oven Button Press Registered");
+  if (interrupt_time - last_interrupt_time > 500)
+  {
+    Serial.println(modButtonCycleOven);
+    if (modButtonCycleOven < maxCycles - 1) {
+      modButtonCycleOven++;
+    }
+    else {
+      modButtonCycleOven = 0;
+    }
+    if (modButtonCycleOven == 0)
+    {
+      glowRed(NUM_LEDS_OVEN, ledsOven);
+    }
+    else if (modButtonCycleOven == 1) {
+      glowGreen(NUM_LEDS_OVEN, ledsOven);
+    }
+    else if (modButtonCycleOven == 2) {
+      glowPink(NUM_LEDS_OVEN, ledsOven);
+    }
+    else {
+      glowBlue(NUM_LEDS_OVEN, ledsOven);
+    }
+  }
+  else {
+    Serial.println("Multiple presses");
+  }
+  last_interrupt_time = interrupt_time;
+  Serial.println(modButtonCycleOven);
+}
+
+
 
 // ***** COLOR GLOWING FUNCTIONS BELOW ********
 
